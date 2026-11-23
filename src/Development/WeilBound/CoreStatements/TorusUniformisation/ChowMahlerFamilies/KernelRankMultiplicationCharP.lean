@@ -56,9 +56,12 @@ noncomputable def co (i : Fin r) : B ⊗[k] Sq k r →ₗ[k] B :=
 
 @[simp] theorem constant_term_tensor (b : B) (x : Sq k r) : c0 k r B (b ⊗ₜ[k] x) = x.fst • b := by simp [c0]
 
-@[simp] theorem co_tmul (i : Fin r) (b : B) (x : Sq k r) : co i (b ⊗ₜ[k] x) = x.snd i • b := by simp [co]
+@[simp] theorem co_tmul (i : Fin r) (b : B) (x : Sq k r) :
+    co (k := k) (B := B) i (b ⊗ₜ[k] x) = x.snd i • b := by simp [co]
 
-theorem co_mul (i : Fin r) (s t : B ⊗[k] Sq k r) : co i (s * t) = c0 k r B s * co i t + co i s * c0 k r B t := by
+theorem co_mul (i : Fin r) (s t : B ⊗[k] Sq k r) :
+    co (k := k) (B := B) i (s * t) =
+      c0 k r B s * co (k := k) (B := B) i t + co (k := k) (B := B) i s * c0 k r B t := by
   induction s with
   | add x y hx hy => simp only [add_mul, map_add (f := _), hx, hy]; ring
   | tmul a a' =>
@@ -67,7 +70,8 @@ theorem co_mul (i : Fin r) (s t : B ⊗[k] Sq k r) : co i (s * t) = c0 k r B s *
     | tmul b b' => simp [snd_mul, Algebra.smul_def]; ring
 
 theorem co_map {B' : Type} [CommRing B'] [Algebra k B'] (θ : B →ₐ[k] B') (i : Fin r) (s : B ⊗[k] Sq k r) :
-    co i (Algebra.TensorProduct.map θ (AlgHom.id k _) s) = θ (co i s) := by
+    co (k := k) (B := B') i (Algebra.TensorProduct.map θ (AlgHom.id k _) s) =
+      θ (co (k := k) (B := B) i s) := by
   induction s with
   | add x y hx hy => simp only [map_add (f := _), hx, hy]
   | tmul a a' => simp
@@ -82,7 +86,8 @@ noncomputable def dir (l : Fin r → k) : Sq k r →ₐ[k] DualNumber k := TrivS
 
 theorem map_dir (l : Fin r → k) (s : B ⊗[k] Sq k r) :
     Algebra.TensorProduct.map (AlgHom.id k B) (dir l) s =
-      c0 k r B s ⊗ₜ[k] 1 + (∑ i, l i • co i s) ⊗ₜ[k] (DualNumber.eps : DualNumber k) := by
+      c0 k r B s ⊗ₜ[k] 1 +
+        (∑ i, l i • co (k := k) (B := B) i s) ⊗ₜ[k] (DualNumber.eps : DualNumber k) := by
   induction s with
   | add x y hx hy => simp only [map_add (f := _), hx, hy, smul_add, Finset.sum_add_distrib, add_tmul]; abel
   | tmul a x =>
